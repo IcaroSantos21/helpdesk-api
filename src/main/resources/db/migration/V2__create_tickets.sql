@@ -7,9 +7,9 @@ create table tickets (
     priority varchar(20) not null
                      check ( priority in ('LOW', 'MEDIUM', 'HIGH')),
     created_by uuid not null references users(id),
-    assigned_to uuid not null references users(id),
-    created_at timestamp not null,
-    updated_at timestamp not null
+    assigned_to uuid references users(id),
+    created_at timestamp with time zone not null,
+    updated_at timestamp with time zone not null
 );
 
 create index idx_tickets_status on tickets(status);
