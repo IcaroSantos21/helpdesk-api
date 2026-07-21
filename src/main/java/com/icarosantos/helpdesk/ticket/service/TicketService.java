@@ -17,17 +17,14 @@ public class TicketService {
 
     public Ticket create(CreateTicketRequest request, UUID clientId) {
         var ticket = Ticket.builder()
-                .id(clientId)
                 .title(request.title())
                 .description(request.description())
                 .status(TicketStatus.OPEN)
                 .priority(request.priority())
                 .createdBy(clientId)
-                .assignedTo(null)
                 .build();
 
-        repository.save(ticket);
+        return repository.save(ticket);
 
-        return ticket;
     }
 }
