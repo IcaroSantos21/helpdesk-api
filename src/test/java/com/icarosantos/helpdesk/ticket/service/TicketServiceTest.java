@@ -137,4 +137,19 @@ class TicketServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("description must not be blank");
     }
+
+    @Test
+    void should_reject_description_shorter_than_10() {
+        UUID clientId = UUID.randomUUID();
+
+        var request = new CreateTicketRequest(
+                "Erro no login",
+                "Muito curta",
+                TicketPriority.HIGH
+        );
+
+        assertThatThrownBy(() -> service.create(request, clientId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("description must contain at least 10 characters");
+    }
 }
