@@ -51,4 +51,27 @@ class TicketServiceTest {
         assertThat(created.getAssignedTo()).isNull();
 
     }
+
+    @Test
+    void should_set_creation_date() {
+        // Arrange
+        UUID clientId = UUID.randomUUID();
+
+        CreateTicketRequest request = new CreateTicketRequest(
+                "Erro no login",
+                "Não consigo acessar o sistema",
+                TicketPriority.HIGH
+        );
+
+        when(repository.save(any(Ticket.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Ticket created = service.create(request, clientId);
+
+        // Assert
+        assertThat(created.getCreatedAt()).isNotNull();
+        assertThat(created.getUpdatedAt()).isNotNull();
+        assertThat(created.getCreatedAt()).isEqualTo(created.getUpdatedAt());
+    }
 }
