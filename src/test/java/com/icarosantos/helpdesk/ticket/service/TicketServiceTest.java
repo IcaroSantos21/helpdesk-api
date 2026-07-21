@@ -90,4 +90,19 @@ class TicketServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("title must not be blank");
     }
+
+    @Test
+    void should_reject_title_shorter_than_5() {
+        UUID clientId = UUID.randomUUID();
+
+        var request = new CreateTicketRequest(
+                "Erro",
+                "Descrição válida com mais de dez caracteres",
+                TicketPriority.HIGH
+        );
+
+        assertThatThrownBy(() -> service.create(request, clientId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("title must contain at least 5 characters");
+    }
 }
