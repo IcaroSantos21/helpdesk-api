@@ -105,4 +105,21 @@ class TicketServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("title must contain at least 5 characters");
     }
+
+    @Test
+    void should_reject_title_longer_than_100() {
+        UUID clientId = UUID.randomUUID();
+
+        String longTitle = "a".repeat(101);
+
+        var request = new CreateTicketRequest(
+                longTitle,
+                "Descrição válida com mais de dez caracteres",
+                TicketPriority.HIGH
+        );
+
+        assertThatThrownBy(() -> service.create(request, clientId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("title must contain at most 100 characters");
+    }
 }

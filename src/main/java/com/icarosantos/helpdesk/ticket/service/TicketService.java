@@ -19,12 +19,7 @@ public class TicketService {
     public Ticket create(CreateTicketRequest request, UUID clientId) {
         var now = LocalDateTime.now();
 
-        if (request.title() == null || request.title().isBlank())
-            throw new IllegalArgumentException("title must not be blank");
-
-        if (request.title().length() < 5)
-            throw new IllegalArgumentException("title must contain at least 5 characters");
-
+        validateTitle(request.title());
 
         var ticket = Ticket.builder()
                 .title(request.title())
@@ -38,5 +33,16 @@ public class TicketService {
 
         return repository.save(ticket);
 
+    }
+
+    private void validateTitle(String title) {
+        if (title == null || title.isBlank())
+            throw new IllegalArgumentException("title must not be blank");
+
+        if (title.length() < 5)
+            throw new IllegalArgumentException("title must contain at least 5 characters");
+
+        if (title.length() > 100)
+            throw new IllegalArgumentException("title must contain at most 100 characters");
     }
 }
