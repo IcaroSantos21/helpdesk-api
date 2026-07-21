@@ -19,9 +19,12 @@ public class TicketService {
     public Ticket create(CreateTicketRequest request, UUID clientId) {
         var now = LocalDateTime.now();
 
-        if (request.title().isBlank() || request.title() == null) {
+        if (request.title() == null || request.title().isBlank())
             throw new IllegalArgumentException("title must not be blank");
-        }
+
+        if (request.title().length() < 5)
+            throw new IllegalArgumentException("title must contain at least 5 characters");
+
 
         var ticket = Ticket.builder()
                 .title(request.title())
