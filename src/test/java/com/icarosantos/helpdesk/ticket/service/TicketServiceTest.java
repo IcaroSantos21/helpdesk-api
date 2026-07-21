@@ -122,4 +122,19 @@ class TicketServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("title must contain at most 100 characters");
     }
+
+    @Test
+    void should_reject_blank_description() {
+        UUID clientId = UUID.randomUUID();
+
+        var request = new CreateTicketRequest(
+                "Erro no login",
+                "   ",
+                TicketPriority.HIGH
+        );
+
+        assertThatThrownBy(() -> service.create(request, clientId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("description must not be blank");
+    }
 }
