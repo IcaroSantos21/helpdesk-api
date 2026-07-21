@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -73,5 +74,20 @@ class TicketServiceTest {
         assertThat(created.getCreatedAt()).isNotNull();
         assertThat(created.getUpdatedAt()).isNotNull();
         assertThat(created.getCreatedAt()).isEqualTo(created.getUpdatedAt());
+    }
+
+    @Test
+    void should_reject_blank_title() {
+        UUID clientId = UUID.randomUUID();
+
+        var request = new CreateTicketRequest(
+                "   ",
+                "Descrição válida com mais de dez caracteres",
+                TicketPriority.HIGH
+        );
+
+        assertThatThrownBy(() -> service.create(request, clientId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("title must not be blank");
     }
 }
