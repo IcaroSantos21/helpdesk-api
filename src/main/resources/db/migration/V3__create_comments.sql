@@ -6,4 +6,4 @@ create table ticket_comments (
     created_at timestamp not null
 );
 
-create index idx_comments_ticket on tickets_comments(ticket_id);
+create index idx_comments_ticket on ticket_comments(ticket_id);
