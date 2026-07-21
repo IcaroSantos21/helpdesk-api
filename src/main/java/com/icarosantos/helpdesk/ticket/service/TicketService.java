@@ -25,6 +25,9 @@ public class TicketService {
         if (request.title().length() < 5)
             throw new IllegalArgumentException("title must contain at least 5 characters");
 
+        if (request.title().length() > 100)
+            throw new IllegalArgumentException("title must contain at most 100 characters");
+
 
         var ticket = Ticket.builder()
                 .title(request.title())
