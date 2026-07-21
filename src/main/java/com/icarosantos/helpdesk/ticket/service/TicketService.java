@@ -24,6 +24,9 @@ public class TicketService {
         if (request.description() == null || request.description().isBlank())
             throw new IllegalArgumentException("description must not be blank");
 
+        if (request.description().length() < 10)
+            throw new IllegalArgumentException("description must contain at least 10 characters");
+
         var ticket = Ticket.builder()
                 .title(request.title())
                 .description(request.description())

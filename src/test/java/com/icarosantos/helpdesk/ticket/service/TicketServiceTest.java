@@ -144,7 +144,7 @@ class TicketServiceTest {
 
         var request = new CreateTicketRequest(
                 "Erro no login",
-                "Muito curta",
+                "NãoTemDez",
                 TicketPriority.HIGH
         );
 
