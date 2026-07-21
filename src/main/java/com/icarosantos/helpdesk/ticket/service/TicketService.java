@@ -21,6 +21,9 @@ public class TicketService {
 
         validateTitle(request.title());
 
+        if (request.description() == null || request.description().isBlank())
+            throw new IllegalArgumentException("description must not be blank");
+
         var ticket = Ticket.builder()
                 .title(request.title())
                 .description(request.description())
