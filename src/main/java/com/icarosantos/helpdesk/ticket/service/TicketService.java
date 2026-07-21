@@ -21,8 +21,7 @@ public class TicketService {
 
         validateTitle(request.title());
 
-        if (request.description() == null || request.description().isBlank())
-            throw new IllegalArgumentException("description must not be blank");
+        validateDescription(request.description());
 
         var ticket = Ticket.builder()
                 .title(request.title())
@@ -47,5 +46,13 @@ public class TicketService {
 
         if (title.length() > 100)
             throw new IllegalArgumentException("title must contain at most 100 characters");
+    }
+
+    private void validateDescription(String description) {
+        if (description == null || description.isBlank())
+            throw new IllegalArgumentException("description must not be blank");
+
+        if (description.length() < 10)
+            throw new IllegalArgumentException("description must contain at least 10 characters");
     }
 }
