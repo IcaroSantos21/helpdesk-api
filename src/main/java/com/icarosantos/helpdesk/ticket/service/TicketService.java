@@ -52,6 +52,15 @@ public class TicketService {
         return repository.save(ticket);
     }
 
+    public Ticket changeStatus(UUID ticketId, TicketStatus ticketStatus) {
+        var ticket = repository.findById(ticketId).get();
+
+        ticket.setStatus(ticketStatus);
+        ticket.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(ticket);
+    }
+
     private void validateTitle(String title) {
         if (title == null || title.isBlank())
             throw new IllegalArgumentException("title must not be blank");
