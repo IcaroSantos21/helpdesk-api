@@ -1,10 +1,12 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketPriority;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
 import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
 import com.icarosantos.helpdesk.ticket.repository.TicketRepository;
+import com.icarosantos.helpdesk.user.domain.UserRole;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -175,10 +177,33 @@ class TicketServiceTest {
         when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
         when(repository.save(any(Ticket.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.assign(ticketId, agentId);
+        var result = service.assign(ticketId, agentId, UserRole.AGENT);
 
         assertThat(result.getAssignedTo()).isEqualTo(agentId);
         assertThat(result.getStatus()).isEqualTo(TicketStatus.IN_PROGRESS);
         assertThat(result.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void should_reject_assignment_by_client() {
+        var ticketId = UUID.randomUUID();
+        var agentId = UUID.randomUUID();
+
+        var existingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.OPEN)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
+
+        assertThatThrownBy(() -> service.assign(ticketId, agentId, UserRole.CLIENT))
+                .isInstanceOf(UnauthorizedAssignmentException.class);
     }
 }

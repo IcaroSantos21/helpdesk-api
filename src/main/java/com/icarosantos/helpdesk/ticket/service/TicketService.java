@@ -1,9 +1,11 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
 import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
 import com.icarosantos.helpdesk.ticket.repository.TicketRepository;
+import com.icarosantos.helpdesk.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +39,13 @@ public class TicketService {
 
     }
 
-    public Ticket assign(UUID ticketId, UUID agentId) {
+    public Ticket assign(UUID ticketId, UUID agentId, UserRole requesterRole) {
         var ticket = repository.findById(ticketId).get();
+
+        if (requesterRole == UserRole.CLIENT) {
+            throw new UnauthorizedAssignmentException("Clients are not allowed to assign tickets");
+        }
+
 
         ticket.setAssignedTo(agentId);
         ticket.setStatus(TicketStatus.IN_PROGRESS);
