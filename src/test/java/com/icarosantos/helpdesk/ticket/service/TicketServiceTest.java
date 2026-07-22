@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.InvalidStatusTransitionException;
 import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
 import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
@@ -306,5 +307,27 @@ class TicketServiceTest {
 
         assertThat(result.getStatus()).isEqualTo(TicketStatus.CLOSED);
         assertThat(result.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void should_reject_invalid_transition() {
+        var ticketId = UUID.randomUUID();
+
+        var existingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.OPEN)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
+
+        assertThatThrownBy(() -> service.changeStatus(ticketId, TicketStatus.CLOSED))
+                .isInstanceOf(InvalidStatusTransitionException.class);
     }
 }

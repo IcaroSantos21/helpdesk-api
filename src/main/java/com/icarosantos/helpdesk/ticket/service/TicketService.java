@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.InvalidStatusTransitionException;
 import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
 import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
@@ -52,10 +53,12 @@ public class TicketService {
         return repository.save(ticket);
     }
 
-    public Ticket changeStatus(UUID ticketId, TicketStatus ticketStatus) {
+    public Ticket changeStatus(UUID ticketId, TicketStatus newStatus) {
         var ticket = repository.findById(ticketId).get();
 
-        ticket.setStatus(ticketStatus);
+        validateTransition(ticket.getStatus(), newStatus);
+
+        ticket.setStatus(newStatus);
         ticket.setUpdatedAt(LocalDateTime.now());
 
         return repository.save(ticket);
@@ -86,5 +89,31 @@ public class TicketService {
 
         if (ticket.getAssignedTo() != null)
             throw new TicketAlreadyAssignedException("Ticket is already assigned to an agent");
+    }
+
+    private void validateTransition(TicketStatus currentStatus, TicketStatus newStatus) {
+        switch (currentStatus) {
+
+            case OPEN -> {
+                if (!newStatus.equals(TicketStatus.IN_PROGRESS))
+                    throw new InvalidStatusTransitionException("Invalid status transition from "
+                            + currentStatus + " to " + newStatus);
+            }
+
+            case IN_PROGRESS -> {
+                if (!newStatus.equals(TicketStatus.RESOLVED))
+                    throw new InvalidStatusTransitionException("Invalid status transition from "
+                            + currentStatus + " to " + newStatus);
+            }
+
+            case RESOLVED -> {
+                if (!newStatus.equals(TicketStatus.CLOSED))
+                    throw new InvalidStatusTransitionException("Invalid status transition from "
+                            + currentStatus + " to " + newStatus);
+            }
+
+            default -> throw new InvalidStatusTransitionException("Invalid status transition from "
+                    + currentStatus + " to " + newStatus);
+        }
     }
 }
