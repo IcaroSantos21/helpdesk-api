@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -151,5 +153,32 @@ class TicketServiceTest {
         assertThatThrownBy(() -> service.create(request, clientId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("description must contain at least 10 characters");
+    }
+
+    @Test
+    void should_assign_ticket_to_agent() {
+        var ticketId = UUID.randomUUID();
+        var agentId = UUID.randomUUID();
+
+        var existingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.OPEN)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
+        when(repository.save(any(Ticket.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.assign(ticketId, agentId);
+
+        assertThat(result.getAssignedTo()).isEqualTo(agentId);
+        assertThat(result.getStatus()).isEqualTo(TicketStatus.IN_PROGRESS);
+        assertThat(result.getUpdatedAt()).isNotNull();
     }
 }
