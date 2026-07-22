@@ -256,4 +256,30 @@ class TicketServiceTest {
         assertThat(result.getStatus()).isEqualTo(TicketStatus.IN_PROGRESS);
         assertThat(result.getUpdatedAt()).isNotNull();
     }
+
+    @Test
+    void should_change_in_progress_to_resolved() {
+        var ticketId = UUID.randomUUID();
+
+        var exsitingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.IN_PROGRESS)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(exsitingTicket));
+        when(repository.save(any(Ticket.class))).
+                thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.changeStatus(ticketId, TicketStatus.RESOLVED);
+
+        assertThat(result.getStatus()).isEqualTo(TicketStatus.RESOLVED);
+        assertThat(result.getUpdatedAt()).isNotNull();
+    }
 }
