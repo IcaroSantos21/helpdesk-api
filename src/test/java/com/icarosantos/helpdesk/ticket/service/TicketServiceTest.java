@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
 import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketPriority;
@@ -205,5 +206,29 @@ class TicketServiceTest {
 
         assertThatThrownBy(() -> service.assign(ticketId, agentId, UserRole.CLIENT))
                 .isInstanceOf(UnauthorizedAssignmentException.class);
+    }
+
+    @Test
+    void should_reject_already_assigned_ticket() {
+        var ticketId = UUID.randomUUID();
+        var newAgentId = UUID.randomUUID();
+        var currentAgentId = UUID.randomUUID();
+
+        var existingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.IN_PROGRESS)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(currentAgentId)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
+
+        assertThatThrownBy(() -> service.assign(ticketId, newAgentId, UserRole.AGENT))
+                .isInstanceOf(TicketAlreadyAssignedException.class);
     }
 }
