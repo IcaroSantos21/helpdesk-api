@@ -43,13 +43,7 @@ public class TicketService {
     public Ticket assign(UUID ticketId, UUID agentId, UserRole requesterRole) {
         var ticket = repository.findById(ticketId).get();
 
-        if (requesterRole == UserRole.CLIENT) {
-            throw new UnauthorizedAssignmentException("Clients are not allowed to assign tickets");
-        }
-
-        if (ticket.getAssignedTo() != null) {
-            throw new TicketAlreadyAssignedException("Ticket is already assigned to an agent");
-        }
+        validateAssignment(ticket, requesterRole);
 
         ticket.setAssignedTo(agentId);
         ticket.setStatus(TicketStatus.IN_PROGRESS);
@@ -75,5 +69,13 @@ public class TicketService {
 
         if (description.length() < 10)
             throw new IllegalArgumentException("description must contain at least 10 characters");
+    }
+
+    private void validateAssignment(Ticket ticket, UserRole requesterRole) {
+        if (requesterRole == UserRole.CLIENT)
+            throw new UnauthorizedAssignmentException("Clients are not allowed to assign tickets");
+
+        if (ticket.getAssignedTo() != null)
+            throw new TicketAlreadyAssignedException("Ticket is already assigned to an agent");
     }
 }
