@@ -282,4 +282,29 @@ class TicketServiceTest {
         assertThat(result.getStatus()).isEqualTo(TicketStatus.RESOLVED);
         assertThat(result.getUpdatedAt()).isNotNull();
     }
+
+    @Test
+    void should_change_resolved_to_closed() {
+        var ticketId = UUID.randomUUID();
+
+        var existingTicket = Ticket.builder()
+                .id(ticketId)
+                .title("Login not working")
+                .description("User cannot login to the platform")
+                .status(TicketStatus.RESOLVED)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .assignedTo(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
+        when(repository.save(any(Ticket.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.changeStatus(ticketId, TicketStatus.CLOSED);
+
+        assertThat(result.getStatus()).isEqualTo(TicketStatus.CLOSED);
+        assertThat(result.getUpdatedAt()).isNotNull();
+    }
 }
