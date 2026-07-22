@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.ticket.service;
 
+import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
 import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
@@ -46,6 +47,9 @@ public class TicketService {
             throw new UnauthorizedAssignmentException("Clients are not allowed to assign tickets");
         }
 
+        if (ticket.getAssignedTo() != null) {
+            throw new TicketAlreadyAssignedException("Ticket is already assigned to an agent");
+        }
 
         ticket.setAssignedTo(agentId);
         ticket.setStatus(TicketStatus.IN_PROGRESS);
