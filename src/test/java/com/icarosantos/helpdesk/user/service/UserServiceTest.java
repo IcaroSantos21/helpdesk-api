@@ -1,0 +1,44 @@
+package com.icarosantos.helpdesk.user.service;
+
+import com.icarosantos.helpdesk.user.domain.User;
+import com.icarosantos.helpdesk.user.domain.UserRole;
+import com.icarosantos.helpdesk.user.dto.RegisterUserRequest;
+import com.icarosantos.helpdesk.user.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private UserRepository repository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    private UserService service;
+
+    @Test
+    void should_register_client_user() {
+        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
+        when(repository.existsByEmail("client@example.com")).thenReturn(false);
+        when(repository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.register(request);
+
+        assertThat(result.getEmail()).isEqualTo("client@example.com");
+        assertThat(result.getRole()).isEqualTo(UserRole.CLIENT);
+        assertThat(result.getPassword()).isEqualTo("hashedPassword");
+    }
+}
