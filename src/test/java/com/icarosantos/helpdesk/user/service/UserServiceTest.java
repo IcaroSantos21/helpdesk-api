@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.user.service;
 
+import com.icarosantos.helpdesk.common.exception.DuplicateEmailException;
 import com.icarosantos.helpdesk.user.domain.User;
 import com.icarosantos.helpdesk.user.domain.UserRole;
 import com.icarosantos.helpdesk.user.dto.RegisterUserRequest;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -55,5 +57,15 @@ class UserServiceTest {
         assertThat(result.getEmail()).isEqualTo("agent@example.com");
         assertThat(result.getRole()).isEqualTo(UserRole.AGENT);
         assertThat(result.getPassword()).isEqualTo("hashedPassword");
+    }
+
+    @Test
+    void should_reject_duplicate_email() {
+        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+
+        when(repository.existsByEmail("client@example.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(DuplicateEmailException.class);
     }
 }
