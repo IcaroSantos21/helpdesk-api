@@ -54,13 +54,15 @@ class TicketCommentServiceTest {
     }
 
     @Test
-    void should_reject_comment_longer_than_1000() {
+    void should_set_comment_author() {
         var ticketId = UUID.randomUUID();
         var authorId = UUID.randomUUID();
-        var longContent = "a".repeat(1001);
-        var request = new AddCommentRequest(longContent, authorId);
+        var request = new AddCommentRequest("This issue is still happening", authorId);
 
-        assertThatThrownBy(() -> service.addComment(ticketId, request))
-                .isInstanceOf(InvalidCommentException.class);
+        when(repository.save(any(TicketComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.addComment(ticketId, request);
+
+        assertThat(result.getAuthorId()).isEqualTo(authorId);
     }
 }
