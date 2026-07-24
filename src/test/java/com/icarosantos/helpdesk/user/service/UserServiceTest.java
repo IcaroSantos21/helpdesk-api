@@ -41,4 +41,19 @@ class UserServiceTest {
         assertThat(result.getRole()).isEqualTo(UserRole.CLIENT);
         assertThat(result.getPassword()).isEqualTo("hashedPassword");
     }
+
+    @Test
+    void should_register_agent_user() {
+        var request = new RegisterUserRequest("agent@example.com", "plainPassword", UserRole.AGENT);
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
+        when(repository.existsByEmail("agent@example.com")).thenReturn(false);
+        when(repository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.register(request);
+
+        assertThat(result.getEmail()).isEqualTo("agent@example.com");
+        assertThat(result.getRole()).isEqualTo(UserRole.AGENT);
+        assertThat(result.getPassword()).isEqualTo("hashedPassword");
+    }
 }
