@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,5 +68,20 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> service.register(request))
                 .isInstanceOf(DuplicateEmailException.class);
+    }
+
+    @Test
+    void should_hash_password_before_save() {
+        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
+        when(repository.existsByEmail("client@example.com")).thenReturn(false);
+        when(repository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.register(request);
+
+        assertThat(result.getPassword()).isEqualTo("hashedPassword");
+        assertThat(result.getPassword()).isNotEqualTo("plainPassword");
+        verify(passwordEncoder).encode("plainPassword");
     }
 }
