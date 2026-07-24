@@ -20,6 +20,9 @@ public class TicketCommentService {
         if (request.content() == null || request.content().isBlank())
             throw new InvalidCommentException("Comment content must not be blank");
 
+        if (request.content().length() > 1000)
+            throw new InvalidCommentException("Comment content must not exceed 1000 characters");
+
         var ticketComment = TicketComment.builder()
                 .id(UUID.randomUUID())
                 .ticketId(ticketId)
