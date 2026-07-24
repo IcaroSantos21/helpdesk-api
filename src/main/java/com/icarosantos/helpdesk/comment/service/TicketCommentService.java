@@ -3,6 +3,7 @@ package com.icarosantos.helpdesk.comment.service;
 import com.icarosantos.helpdesk.comment.domain.TicketComment;
 import com.icarosantos.helpdesk.comment.dto.AddCommentRequest;
 import com.icarosantos.helpdesk.comment.repository.TicketCommentRepository;
+import com.icarosantos.helpdesk.common.exception.InvalidCommentException;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,9 @@ public class TicketCommentService {
 
 
     public TicketComment addComment(UUID ticketId, AddCommentRequest request) {
+
+        if (request.content() == null || request.content().isBlank())
+            throw new InvalidCommentException("Comment content must not be blank");
 
         var ticketComment = TicketComment.builder()
                 .id(UUID.randomUUID())
