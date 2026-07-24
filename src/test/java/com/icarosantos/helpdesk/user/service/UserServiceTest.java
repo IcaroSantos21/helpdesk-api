@@ -84,4 +84,17 @@ class UserServiceTest {
         assertThat(result.getPassword()).isNotEqualTo("plainPassword");
         verify(passwordEncoder).encode("plainPassword");
     }
+
+    @Test
+    void should_set_default_role_as_client_when_not_provided() {
+        var request = new RegisterUserRequest("client@example.com", "plainPassword", null);
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
+        when(repository.existsByEmail("client@example.com")).thenReturn(false);
+        when(repository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.register(request);
+
+        assertThat(result.getRole()).isEqualTo(UserRole.CLIENT);
+    }
 }
