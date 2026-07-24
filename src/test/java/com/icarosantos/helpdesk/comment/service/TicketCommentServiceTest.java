@@ -52,4 +52,15 @@ class TicketCommentServiceTest {
         assertThatThrownBy(() -> service.addComment(ticketId, request))
                 .isInstanceOf(InvalidCommentException.class);
     }
+
+    @Test
+    void should_reject_comment_longer_than_1000() {
+        var ticketId = UUID.randomUUID();
+        var authorId = UUID.randomUUID();
+        var longContent = "a".repeat(1001);
+        var request = new AddCommentRequest(longContent, authorId);
+
+        assertThatThrownBy(() -> service.addComment(ticketId, request))
+                .isInstanceOf(InvalidCommentException.class);
+    }
 }
