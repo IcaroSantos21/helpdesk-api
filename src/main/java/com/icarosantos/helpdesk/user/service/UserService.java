@@ -26,7 +26,7 @@ public class UserService {
                 .id(UUID.randomUUID())
                 .email(request.email())
                 .password(passwordHash)
-                .role(request.role())
+                .role(request.role() == null ? UserRole.CLIENT : request.role())
                 .build();
         return repository.save(user);
     }
