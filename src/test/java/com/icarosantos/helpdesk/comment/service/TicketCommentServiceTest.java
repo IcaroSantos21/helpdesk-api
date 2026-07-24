@@ -52,4 +52,17 @@ class TicketCommentServiceTest {
         assertThatThrownBy(() -> service.addComment(ticketId, request))
                 .isInstanceOf(InvalidCommentException.class);
     }
+
+    @Test
+    void should_set_comment_author() {
+        var ticketId = UUID.randomUUID();
+        var authorId = UUID.randomUUID();
+        var request = new AddCommentRequest("This issue is still happening", authorId);
+
+        when(repository.save(any(TicketComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.addComment(ticketId, request);
+
+        assertThat(result.getAuthorId()).isEqualTo(authorId);
+    }
 }
