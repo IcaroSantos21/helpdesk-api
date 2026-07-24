@@ -65,4 +65,17 @@ class TicketCommentServiceTest {
 
         assertThat(result.getAuthorId()).isEqualTo(authorId);
     }
+
+    @Test
+    void should_set_comment_creation_date() {
+        var ticketId = UUID.randomUUID();
+        var authorId = UUID.randomUUID();
+        var request = new AddCommentRequest("This issue is still happening", authorId);
+
+        when(repository.save(any(TicketComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = service.addComment(ticketId, request);
+
+        assertThat(result.getCreatedAt()).isNotNull();
+    }
 }
