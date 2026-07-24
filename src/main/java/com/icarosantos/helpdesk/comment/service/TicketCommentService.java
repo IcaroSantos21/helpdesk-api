@@ -17,11 +17,7 @@ public class TicketCommentService {
 
     public TicketComment addComment(UUID ticketId, AddCommentRequest request) {
 
-        if (request.content() == null || request.content().isBlank())
-            throw new InvalidCommentException("Comment content must not be blank");
-
-        if (request.content().length() > 1000)
-            throw new InvalidCommentException("Comment content must not exceed 1000 characters");
+        validateContent(request);
 
         var ticketComment = TicketComment.builder()
                 .id(UUID.randomUUID())
@@ -32,5 +28,13 @@ public class TicketCommentService {
                 .build();
 
         return repository.save(ticketComment);
+    }
+
+    private static void validateContent(AddCommentRequest request) {
+        if (request.content() == null || request.content().isBlank())
+            throw new InvalidCommentException("Comment content must not be blank");
+
+        if (request.content().length() > 1000)
+            throw new InvalidCommentException("Comment content must not exceed 1000 characters");
     }
 }
