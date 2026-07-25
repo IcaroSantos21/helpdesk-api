@@ -1,6 +1,7 @@
 package com.icarosantos.helpdesk.auth.service;
 
 import com.icarosantos.helpdesk.auth.dto.LoginRequest;
+import com.icarosantos.helpdesk.common.exception.InvalidCredentialsException;
 import com.icarosantos.helpdesk.user.domain.User;
 import com.icarosantos.helpdesk.user.domain.UserRole;
 import com.icarosantos.helpdesk.user.repository.UserRepository;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -47,5 +49,23 @@ class AuthServiceTest {
         var result = service.authenticate(request);
 
         assertThat(result.getEmail()).isEqualTo("client@example.com");
+    }
+
+    @Test
+    void should_reject_invalid_password() {
+        var existingUser = User.builder()
+                .id(UUID.randomUUID())
+                .email("client@example.com")
+                .password("hashedPassword")
+                .role(UserRole.CLIENT)
+                .build();
+
+        var request = new LoginRequest("client@example.com", "wrongPassword");
+
+        when(userRepository.findByEmail("client@example.com")).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedPassword")).thenReturn(false);
+
+        assertThatThrownBy(() -> service.authenticate(request))
+                .isInstanceOf(InvalidCredentialsException.class);
     }
 }
