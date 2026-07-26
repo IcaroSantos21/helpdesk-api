@@ -78,4 +78,26 @@ class AuthServiceTest {
         assertThatThrownBy(() -> service.authenticate(request))
                 .isInstanceOf(InvalidCredentialsException.class);
     }
+
+    @Test
+    void should_return_authenticated_user() {
+        var userId = UUID.randomUUID();
+        var existingUser = User.builder()
+                .id(userId)
+                .email("client@example.com")
+                .password("hashedPassword")
+                .role(UserRole.CLIENT)
+                .build();
+
+        var request = new LoginRequest("client@example.com", "plainPassword");
+
+        when(userRepository.findByEmail("client@example.com")).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.matches("plainPassword", "hashedPassword")).thenReturn(true);
+
+        var result = service.authenticate(request);
+
+        assertThat(result.getId()).isEqualTo(userId);
+        assertThat(result.getEmail()).isEqualTo("client@example.com");
+        assertThat(result.getRole()).isEqualTo(UserRole.CLIENT);
+    }
 }
