@@ -43,4 +43,15 @@ class JwtServiceTest {
 
         assertThat(isValid).isTrue();
     }
+
+    @Test
+    void should_reject_expired_token() {
+        var expiredProperties = new JwtProperties("test-secret-key-test-secret-key-1234567890", -1000L);
+        var expiredJwtService = new JwtService(expiredProperties);
+        var expiredToken = expiredJwtService.generateToken("client@example.com");
+
+        var isValid = service.isTokenValid(expiredToken);
+
+        assertThat(isValid).isFalse();
+    }
 }
