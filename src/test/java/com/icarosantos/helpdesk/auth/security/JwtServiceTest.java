@@ -15,7 +15,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        var properties = new JwtProperties("test-secret-key-123456", 86400000L);
+        var properties = new JwtProperties("my-super-secret-test-key-for-jwt-tests", 86400000L);
         service = new JwtService(properties);
     }
 
