@@ -16,9 +16,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public User authenticate(LoginRequest request) {
-        var user = userRepository.findByEmail(request.email()).get();
+        var user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+
         if (!passwordEncoder.matches(request.password(), user.getPassword()))
             throw new InvalidCredentialsException("Invalid email or password");
+
         return user;
     }
 }
