@@ -26,4 +26,13 @@ class JwtServiceTest {
         assertThat(token).isNotNull();
     }
 
+    @Test
+    void should_extract_username_from_token() {
+        var token = service.generateToken("client@example.com");
+
+        var extractedEmail = service.extractUsername(token);
+
+        assertThat(extractedEmail).isEqualTo("client@example.com");
+    }
+
 }
