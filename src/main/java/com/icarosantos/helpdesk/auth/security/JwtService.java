@@ -26,6 +26,10 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return null;
+        var secretKey = Keys.hmacShaKeyFor(properties.secret().getBytes());
+        var payload = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        var subject = payload.getSubject();
+
+        return subject;
     }
 }
