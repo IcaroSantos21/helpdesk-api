@@ -38,4 +38,8 @@ public class JwtService {
                 .secret()
                 .getBytes());
     }
+
+    public boolean isTokenValid(String token) {
+        return false;
+    }
 }

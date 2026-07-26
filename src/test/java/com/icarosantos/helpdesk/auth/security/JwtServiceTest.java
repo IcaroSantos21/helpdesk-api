@@ -35,4 +35,12 @@ class JwtServiceTest {
         assertThat(extractedEmail).isEqualTo("client@example.com");
     }
 
+    @Test
+    void should_validate_valid_token() {
+        var token = service.generateToken("client@example.com");
+
+        var isValid = service.isTokenValid(token);
+
+        assertThat(isValid).isTrue();
+    }
 }
