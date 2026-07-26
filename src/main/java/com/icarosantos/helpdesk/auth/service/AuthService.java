@@ -1,6 +1,7 @@
 package com.icarosantos.helpdesk.auth.service;
 
 import com.icarosantos.helpdesk.auth.dto.LoginRequest;
+import com.icarosantos.helpdesk.common.exception.InvalidCredentialsException;
 import com.icarosantos.helpdesk.user.domain.User;
 import com.icarosantos.helpdesk.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,8 @@ public class AuthService {
 
     public User authenticate(LoginRequest request) {
         var user = userRepository.findByEmail(request.email()).get();
-        passwordEncoder.matches(request.password(), user.getPassword());
+        if (!passwordEncoder.matches(request.password(), user.getPassword()))
+            throw new InvalidCredentialsException("Invalid email or password");
         return user;
     }
 }
