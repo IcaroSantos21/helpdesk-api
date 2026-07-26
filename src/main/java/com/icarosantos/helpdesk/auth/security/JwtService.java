@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.auth.security;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -37,5 +38,17 @@ public class JwtService {
         return Keys.hmacShaKeyFor(properties
                 .secret()
                 .getBytes());
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }
