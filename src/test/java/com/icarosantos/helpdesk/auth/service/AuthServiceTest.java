@@ -68,4 +68,14 @@ class AuthServiceTest {
         assertThatThrownBy(() -> service.authenticate(request))
                 .isInstanceOf(InvalidCredentialsException.class);
     }
+
+    @Test
+    void should_reject_non_existing_user() {
+        var request = new LoginRequest("unknown@example.com", "anyPassword");
+
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.authenticate(request))
+                .isInstanceOf(InvalidCredentialsException.class);
+    }
 }
