@@ -1,0 +1,29 @@
+package com.icarosantos.helpdesk.auth.security;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class)
+class JwtServiceTest {
+
+    private JwtService service;
+
+    @BeforeEach
+    void setUp() {
+        var properties = new JwtProperties("test-secret-key-123456", 86400000L);
+        service = new JwtService(properties);
+    }
+
+    @Test
+    void should_generate_jwt_token() {
+        var token = service.generateToken("client@example.com");
+
+        assertThat(token).isNotNull();
+    }
+
+}
