@@ -54,4 +54,13 @@ class JwtServiceTest {
 
         assertThat(isValid).isFalse();
     }
+
+    @Test
+    void should_reject_invalid_token() {
+        var invalidToken = "this.is.not-a-valid-token";
+
+        var isValid = service.isTokenValid(invalidToken);
+
+        assertThat(isValid).isFalse();
+    }
 }
