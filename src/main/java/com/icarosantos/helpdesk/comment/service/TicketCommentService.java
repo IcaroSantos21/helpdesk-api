@@ -25,7 +25,7 @@ public class TicketCommentService {
                 .id(UUID.randomUUID())
                 .ticketId(ticketId)
                 .authorId(request.authorId())
-                .content(request.content())
+                .message(request.content())
                 .createdAt(LocalDateTime.now())
                 .build();
 
