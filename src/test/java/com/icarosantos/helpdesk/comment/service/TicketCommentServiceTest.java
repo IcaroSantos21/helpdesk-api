@@ -40,7 +40,7 @@ class TicketCommentServiceTest {
         var result = service.addComment(ticketId, request);
 
         assertThat(result.getTicketId()).isEqualTo(ticketId);
-        assertThat(result.getContent()).isEqualTo("This issue is still happening");
+        assertThat(result.getMessage()).isEqualTo("This issue is still happening");
     }
 
     @Test
