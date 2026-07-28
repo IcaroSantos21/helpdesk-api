@@ -4,29 +4,39 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.icarosantos.helpdesk.auth.service.AuthService;
+import com.icarosantos.helpdesk.user.service.UserService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SecurityIntegrationTest {
+class SecurityIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @MockitoBean
+    private AuthService authService;
+
+    @MockitoBean
+    private UserService userService;
+
     @Test
     void should_allow_access_to_auth_endpoints() throws Exception {
         var loginResult = mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andReturn();
 
-        var registerResult = mockMvc.perform(post("auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
+        var registerResult = mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andReturn();
 
         assertThat(loginResult.getResponse().getStatus()).isNotIn(401, 403);
