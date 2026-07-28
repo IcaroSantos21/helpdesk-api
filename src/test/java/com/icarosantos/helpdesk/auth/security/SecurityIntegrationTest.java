@@ -12,6 +12,7 @@ import com.icarosantos.helpdesk.auth.service.AuthService;
 import com.icarosantos.helpdesk.user.service.UserService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
@@ -41,5 +42,13 @@ class SecurityIntegrationTest {
 
         assertThat(loginResult.getResponse().getStatus()).isNotIn(401, 403);
         assertThat(registerResult.getResponse().getStatus()).isNotIn(401, 403);
+    }
+
+    @Test
+    void should_require_authentication_for_protected_endpoints() throws Exception {
+        var result = mockMvc.perform(get("/tickets"))
+                .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(401);
     }
 }
