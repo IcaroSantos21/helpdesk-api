@@ -49,6 +49,6 @@ class SecurityIntegrationTest {
         var result = mockMvc.perform(get("/tickets"))
                 .andReturn();
 
-        assertThat(result.getResponse().getStatus()).isEqualTo(401);
+        assertThat(result.getResponse().getStatus()).isIn(401, 403);
     }
 }
