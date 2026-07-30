@@ -24,7 +24,7 @@ class SecurityIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Autowired
     private JwtService jwtService;
 
     @MockitoBean
