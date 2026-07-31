@@ -79,4 +79,13 @@ class SecurityIntegrationTest {
 
         assertThat(result.getResponse().getStatus()).isNotIn(401, 403);
     }
+
+    @Test
+    void should_reject_request_with_invalid_token() throws Exception {
+        var result = mockMvc.perform(get("/tickets")
+                        .header("Authorization", "Bearer this.is.not-a-valid-token"))
+                .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isIn(401, 403);
+    }
 }
