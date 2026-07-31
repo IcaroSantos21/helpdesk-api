@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -12,6 +13,7 @@ import com.icarosantos.helpdesk.auth.service.AuthService;
 import com.icarosantos.helpdesk.user.service.UserService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -21,6 +23,12 @@ class SecurityIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @MockitoBean
     private AuthService authService;
@@ -50,5 +58,25 @@ class SecurityIntegrationTest {
                 .andReturn();
 
         assertThat(result.getResponse().getStatus()).isIn(401, 403);
+    }
+
+    @Test
+    void should_authenticate_request_with_valid_token() throws Exception {
+        var email = "client@example.com";
+        var token = jwtService.generateToken(email);
+
+        var userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(email)
+                .password("irrelevant")
+                .authorities("ROLE_CLIENT")
+                .build();
+
+        when(userDetailsService.loadUserByUsername(email)).thenReturn(userDetails);
+
+        var result = mockMvc.perform(get("/tickets")
+                        .header("Authorization", "Bearer " + token))
+                .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isNotIn(401, 403);
     }
 }

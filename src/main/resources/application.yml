@@ -15,5 +15,12 @@ spring:
   flyway:
     enabled: true
 
+  config:
+    import: "optional:file:.env[.properties]"
+
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
