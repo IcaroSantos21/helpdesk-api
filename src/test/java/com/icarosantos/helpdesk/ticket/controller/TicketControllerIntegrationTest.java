@@ -61,4 +61,21 @@ public class TicketControllerIntegrationTest {
                 .andExpect(jsonPath("$.priority").value("HIGH"))
                 .andExpect(jsonPath("$.status").value("OPEN"));
     }
+
+    @Test
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
+    void should_return_201_when_ticket_is_created() throws Exception {
+        var request = """
+            {
+                "title": "Login error",
+                "description": "I cannot access the system.",
+                "priority": "HIGH"
+            }
+            """;
+
+        mockMvc.perform(post("/tickets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isCreated());
+    }
 }
