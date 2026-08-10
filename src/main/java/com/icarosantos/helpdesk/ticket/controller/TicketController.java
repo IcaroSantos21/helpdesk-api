@@ -10,21 +10,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/tickets")
 public class TicketController {
 
     private final TicketService ticketService;
     private final UserRepository userRepository;
 
-    @PostMapping("/tickets")
-    public ResponseEntity<TicketResponse> create(@RequestBody CreateTicketRequest request , Authentication authentication) {
-
-        var client = userRepository.findByEmail(authentication.getName()).orElseThrow();
-        var ticket = ticketService.create(request, client.getId());
+    @PostMapping
+    public ResponseEntity<TicketResponse> create(@RequestBody CreateTicketRequest request, Authentication authentication) {
+        var clientId = resolveAuthenticatedClientId(authentication);
+        var ticket = ticketService.create(request, clientId);
         return ResponseEntity.status(HttpStatus.CREATED).body(TicketResponse.from(ticket));
+    }
 
+    private UUID resolveAuthenticatedClientId(Authentication authentication) {
+        var client = userRepository.findByEmail(authentication.getName()).orElseThrow();
+        return client.getId();
     }
 }
