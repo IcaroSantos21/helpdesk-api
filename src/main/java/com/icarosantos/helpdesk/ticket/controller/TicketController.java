@@ -4,6 +4,7 @@ import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
 import com.icarosantos.helpdesk.ticket.dto.TicketResponse;
 import com.icarosantos.helpdesk.ticket.service.TicketService;
 import com.icarosantos.helpdesk.user.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class TicketController {
     private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<TicketResponse> create(@RequestBody CreateTicketRequest request, Authentication authentication) {
+    public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request, Authentication authentication) {
         var clientId = resolveAuthenticatedClientId(authentication);
         var ticket = ticketService.create(request, clientId);
         return ResponseEntity.status(HttpStatus.CREATED).body(TicketResponse.from(ticket));
