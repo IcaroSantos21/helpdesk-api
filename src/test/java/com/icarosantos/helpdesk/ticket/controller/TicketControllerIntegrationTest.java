@@ -78,4 +78,21 @@ public class TicketControllerIntegrationTest {
                         .content(request))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
+    void should_return_400_for_invalid_title() throws Exception {
+        var request = """
+            {
+                "title": "",
+                "description": "I cannot access the system.",
+                "priority": "HIGH"
+            }
+            """;
+
+        mockMvc.perform(post("/tickets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest());
+    }
 }
