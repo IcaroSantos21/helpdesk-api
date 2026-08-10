@@ -95,4 +95,20 @@ public class TicketControllerIntegrationTest {
                         .content(request))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void should_return_401_when_request_has_no_token() throws Exception {
+        var request = """
+            {
+                "title": "Erro no login",
+                "description": "Não consigo acessar o sistema",
+                "priority": "HIGH"
+            }
+            """;
+
+        mockMvc.perform(post("/tickets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isUnauthorized());
+    }
 }
