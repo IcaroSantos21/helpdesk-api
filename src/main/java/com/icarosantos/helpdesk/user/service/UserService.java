@@ -26,6 +26,7 @@ public class UserService {
         var passwordHash = passwordEncoder.encode(request.password());
         var user = User.builder()
                 .id(UUID.randomUUID())
+                .username(request.username())
                 .email(request.email())
                 .password(passwordHash)
                 .role(request.role() == null ? UserRole.CLIENT : request.role())

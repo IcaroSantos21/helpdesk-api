@@ -1,5 +1,6 @@
 package com.icarosantos.helpdesk.ticket.controller;
 
+import com.icarosantos.helpdesk.ticket.dto.AssignTicketRequest;
 import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
 import com.icarosantos.helpdesk.ticket.dto.TicketResponse;
 import com.icarosantos.helpdesk.ticket.service.TicketService;
@@ -9,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -26,13 +24,15 @@ public class TicketController {
 
     @PostMapping
     public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request, Authentication authentication) {
-        var clientId = resolveAuthenticatedClientId(authentication);
+        var clientId = userRepository.findByEmail(authentication.getName()).orElseThrow().getId();
         var ticket = ticketService.create(request, clientId);
         return ResponseEntity.status(HttpStatus.CREATED).body(TicketResponse.from(ticket));
     }
 
-    private UUID resolveAuthenticatedClientId(Authentication authentication) {
-        var client = userRepository.findByEmail(authentication.getName()).orElseThrow();
-        return client.getId();
+    @PatchMapping("/{id}/assign")
+    public ResponseEntity<TicketResponse> assignTicket(@PathVariable UUID id, @RequestBody AssignTicketRequest request, Authentication authentication) {
+        var userRole = userRepository.findByEmail(authentication.getName()).orElseThrow().getRole();
+        var ticket = ticketService.assign(id, request.agentId(), userRole);
+        return ResponseEntity.status(HttpStatus.OK).body(TicketResponse.from(ticket));
     }
 }

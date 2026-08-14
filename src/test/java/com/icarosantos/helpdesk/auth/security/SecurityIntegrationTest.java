@@ -1,5 +1,7 @@
 package com.icarosantos.helpdesk.auth.security;
 
+import com.icarosantos.helpdesk.user.domain.User;
+import com.icarosantos.helpdesk.user.domain.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.icarosantos.helpdesk.auth.service.AuthService;
 import com.icarosantos.helpdesk.user.service.UserService;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,6 +43,15 @@ class SecurityIntegrationTest {
 
     @Test
     void should_allow_access_to_auth_endpoints() throws Exception {
+        var user = User.builder()
+                .id(UUID.randomUUID())
+                .email("client@example.com")
+                .password("hashed")
+                .role(UserRole.CLIENT)
+                .build();
+
+        when(authService.authenticate(any())).thenReturn(user);
+
         var loginResult = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
