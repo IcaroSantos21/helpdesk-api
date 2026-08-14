@@ -44,7 +44,7 @@ public class TicketControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.save(User.builder()
+        var client = userRepository.save(User.builder()
                 .id(UUID.randomUUID())
                 .username("client")
                 .email("client@helpdesk")
@@ -65,7 +65,7 @@ public class TicketControllerIntegrationTest {
                 .description("Não consigo acessar o sistema")
                 .status(TicketStatus.OPEN)
                 .priority(TicketPriority.HIGH)
-                .createdBy(UUID.randomUUID())
+                .createdBy(client.getId())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build());
