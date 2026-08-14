@@ -7,7 +7,6 @@ import com.icarosantos.helpdesk.ticket.service.TicketService;
 import com.icarosantos.helpdesk.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,20 +24,15 @@ public class TicketController {
 
     @PostMapping
     public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request, Authentication authentication) {
-        var clientId = resolveAuthenticatedClientId(authentication);
+        var clientId = userRepository.findByEmail(authentication.getName()).orElseThrow().getId();
         var ticket = ticketService.create(request, clientId);
         return ResponseEntity.status(HttpStatus.CREATED).body(TicketResponse.from(ticket));
     }
 
     @PatchMapping("/{id}/assign")
     public ResponseEntity<TicketResponse> assignTicket(@PathVariable UUID id, @RequestBody AssignTicketRequest request, Authentication authentication) {
-        var userRole = userRepository.findByEmail(authentication.getName()).get().getRole();
+        var userRole = userRepository.findByEmail(authentication.getName()).orElseThrow().getRole();
         var ticket = ticketService.assign(id, request.agentId(), userRole);
         return ResponseEntity.status(HttpStatus.OK).body(TicketResponse.from(ticket));
-    }
-
-    private UUID resolveAuthenticatedClientId(Authentication authentication) {
-        var client = userRepository.findByEmail(authentication.getName()).orElseThrow();
-        return client.getId();
     }
 }

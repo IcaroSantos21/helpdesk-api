@@ -32,7 +32,7 @@ class UserServiceTest {
 
     @Test
     void should_register_client_user() {
-        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+        var request = new RegisterUserRequest("client", "client@example.com", "plainPassword", UserRole.CLIENT);
 
         when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
         when(repository.existsByEmail("client@example.com")).thenReturn(false);
@@ -47,7 +47,7 @@ class UserServiceTest {
 
     @Test
     void should_register_agent_user() {
-        var request = new RegisterUserRequest("agent@example.com", "plainPassword", UserRole.AGENT);
+        var request = new RegisterUserRequest("agent", "agent@example.com", "plainPassword", UserRole.AGENT);
 
         when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
         when(repository.existsByEmail("agent@example.com")).thenReturn(false);
@@ -62,7 +62,7 @@ class UserServiceTest {
 
     @Test
     void should_reject_duplicate_email() {
-        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+        var request = new RegisterUserRequest("client", "client@example.com", "plainPassword", UserRole.CLIENT);
 
         when(repository.existsByEmail("client@example.com")).thenReturn(true);
 
@@ -72,7 +72,7 @@ class UserServiceTest {
 
     @Test
     void should_hash_password_before_save() {
-        var request = new RegisterUserRequest("client@example.com", "plainPassword", UserRole.CLIENT);
+        var request = new RegisterUserRequest("client", "client@example.com", "plainPassword", UserRole.CLIENT);
 
         when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
         when(repository.existsByEmail("client@example.com")).thenReturn(false);
@@ -87,7 +87,7 @@ class UserServiceTest {
 
     @Test
     void should_set_default_role_as_client_when_not_provided() {
-        var request = new RegisterUserRequest("client@example.com", "plainPassword", null);
+        var request = new RegisterUserRequest("client", "client@example.com", "plainPassword", null);
 
         when(passwordEncoder.encode("plainPassword")).thenReturn("hashedPassword");
         when(repository.existsByEmail("client@example.com")).thenReturn(false);

@@ -1,6 +1,8 @@
 package com.icarosantos.helpdesk.auth.controller;
 
 import com.icarosantos.helpdesk.auth.dto.LoginRequest;
+import com.icarosantos.helpdesk.auth.dto.LoginResponse;
+import com.icarosantos.helpdesk.auth.security.JwtService;
 import com.icarosantos.helpdesk.auth.service.AuthService;
 import com.icarosantos.helpdesk.user.domain.User;
 import com.icarosantos.helpdesk.user.dto.RegisterUserRequest;
@@ -16,15 +18,19 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService, UserService userService) {
+    public AuthController(AuthService authService, UserService userService, JwtService jwtService) {
         this.authService = authService;
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/auth/login")
-    public User login(@RequestBody LoginRequest request) {
-        return authService.authenticate(request);
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        var user = authService.authenticate(request);
+        var token = jwtService.generateToken(user.getEmail());
+        return new LoginResponse(token, user.getEmail(), user.getRole().name());
     }
 
     @PostMapping("/auth/register")
