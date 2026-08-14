@@ -1,5 +1,9 @@
 package com.icarosantos.helpdesk.ticket.controller;
 
+import com.icarosantos.helpdesk.ticket.domain.Ticket;
+import com.icarosantos.helpdesk.ticket.domain.TicketPriority;
+import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
+import com.icarosantos.helpdesk.ticket.repository.TicketRepository;
 import com.icarosantos.helpdesk.user.domain.User;
 import com.icarosantos.helpdesk.user.domain.UserRole;
 import com.icarosantos.helpdesk.user.repository.UserRepository;
@@ -13,8 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +36,12 @@ public class TicketControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TicketRepository ticketRepository;
+
+    private User agent;
+    private Ticket ticket;
+
     @BeforeEach
     void setUp() {
         userRepository.save(User.builder()
@@ -38,6 +50,24 @@ public class TicketControllerIntegrationTest {
                 .email("client@helpdesk")
                 .password("irrelevant-for-this-thes")
                 .role(UserRole.CLIENT)
+                .build());
+
+        agent = userRepository.save(User.builder()
+                .id(UUID.randomUUID())
+                .username("agent")
+                .email("agent@helpdesk")
+                .password("irrelevant-for-this-thes")
+                .role(UserRole.AGENT)
+                .build());
+
+        ticket = ticketRepository.save(Ticket.builder()
+                .title("Erro no login")
+                .description("Não consigo acessar o sistema")
+                .status(TicketStatus.OPEN)
+                .priority(TicketPriority.HIGH)
+                .createdBy(UUID.randomUUID())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build());
     }
 
@@ -110,5 +140,22 @@ public class TicketControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_assign_ticket_via_http() throws Exception {
+        var request = """
+                {
+                    "agentId": "%s"
+                }
+                """.formatted(agent.getId());
+
+        mockMvc.perform(patch("/tickets/{id}/assign", ticket.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+            .andExpect(jsonPath("$.assignedTo").value(agent.getId().toString()));
     }
 }
