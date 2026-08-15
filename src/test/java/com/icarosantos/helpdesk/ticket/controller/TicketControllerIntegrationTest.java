@@ -158,4 +158,19 @@ public class TicketControllerIntegrationTest {
             .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
             .andExpect(jsonPath("$.assignedTo").value(agent.getId().toString()));
     }
+
+    @Test
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
+    void should_return_403_when_client_tries_to_assign() throws Exception {
+        var request = """
+                {
+                    "agentId": "%s"
+                }
+                """.formatted(agent.getId());
+
+        mockMvc.perform(patch("/tickets/{id}/assign", ticket.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isForbidden());
+    }
 }
