@@ -232,4 +232,19 @@ public class TicketControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
     }
+
+    @Test
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
+    void should_return_403_when_client_attempts_unauthorized_status_change() throws Exception {
+        var request = """
+            {
+                "status": "IN_PROGRESS"
+            }
+            """;
+
+        mockMvc.perform(patch("/tickets/{id}/status", ticket.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isForbidden());
+    }
 }

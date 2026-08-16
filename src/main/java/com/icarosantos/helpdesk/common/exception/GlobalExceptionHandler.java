@@ -10,8 +10,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UnauthorizedAssignmentException.class)
-    public ResponseEntity<Map<String, String>> handleUnauthorizedAssignment(UnauthorizedAssignmentException ex) {
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedAssignment(UnauthorizedActionException ex) {
         return errorResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
     }
 

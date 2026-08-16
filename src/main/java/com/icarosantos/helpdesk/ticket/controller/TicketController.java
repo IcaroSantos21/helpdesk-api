@@ -38,8 +38,9 @@ public class TicketController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<TicketResponse> changeStatus(@PathVariable UUID id, @RequestBody ChangeStatusRequest request) {
-        var ticket = ticketService.changeStatus(id, request.status());
+    public ResponseEntity<TicketResponse> changeStatus(@PathVariable UUID id, @RequestBody ChangeStatusRequest request, Authentication authentication) {
+        var userRole = userRepository.findByEmail(authentication.getName()).orElseThrow().getRole();
+        var ticket = ticketService.changeStatus(id, request.status(), userRole);
         return ResponseEntity.status(HttpStatus.OK).body(TicketResponse.from(ticket));
     }
 }
