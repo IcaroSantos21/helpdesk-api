@@ -15,4 +15,10 @@ public class GlobalExceptionHandler {
         var body = Map.of("error", "Forbidden", "message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
+
+    @ExceptionHandler(TicketAlreadyAssignedException.class)
+    public ResponseEntity<Map<String, String>> handleTicketAlreadyAssigned(TicketAlreadyAssignedException ex) {
+        var body = Map.of("error", "Conflict", "message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }
