@@ -130,8 +130,8 @@ public class TicketControllerIntegrationTest {
     void should_return_401_when_request_has_no_token() throws Exception {
         var request = """
             {
-                "title": "Erro no login",
-                "description": "Não consigo acessar o sistema",
+                "title": "Login error",
+                "description": "I cannot access the system.",
                 "priority": "HIGH"
             }
             """;
@@ -172,5 +172,31 @@ public class TicketControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_return_409_when_ticket_already_assigned() throws Exception {
+        var assignedTicket = ticketRepository.save(Ticket.builder()
+                .title("Login error")
+                .description("I cannot access the system.")
+                .status(TicketStatus.IN_PROGRESS)
+                .priority(TicketPriority.HIGH)
+                .createdBy(ticket.getCreatedBy())
+                .assignedTo(agent.getId())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+
+        var request = """
+                {
+                    "agentId": "%s"
+                }
+                """.formatted(agent.getId());
+
+        mockMvc.perform(patch("/tickets/{id}/assign", assignedTicket.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isConflict());
     }
 }
