@@ -2,6 +2,7 @@ package com.icarosantos.helpdesk.ticket.service;
 
 import com.icarosantos.helpdesk.common.exception.InvalidStatusTransitionException;
 import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
+import com.icarosantos.helpdesk.common.exception.TicketNotFoundException;
 import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
@@ -42,7 +43,9 @@ public class TicketService {
     }
 
     public Ticket assign(UUID ticketId, UUID agentId, UserRole requesterRole) {
-        var ticket = repository.findById(ticketId).get();
+        var ticket = repository.findById(ticketId).orElseThrow(
+                () -> new TicketNotFoundException("Ticket not found: " + ticketId)
+        );
 
         validateAssignment(ticket, requesterRole);
 
