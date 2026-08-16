@@ -199,4 +199,21 @@ public class TicketControllerIntegrationTest {
                         .content(request))
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_return_404_when_ticket_not_exist() throws Exception {
+        var nonExistentTicketId = UUID.randomUUID();
+
+        var request = """
+                {
+                    "agentId": "%s"
+                }
+                """.formatted(agent.getId());
+
+        mockMvc.perform(patch("/tickets/{id}/assign", nonExistentTicketId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+                .andExpect(status().isNotFound());
+    }
 }
