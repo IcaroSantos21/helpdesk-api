@@ -216,4 +216,20 @@ public class TicketControllerIntegrationTest {
                 .content(request))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_change_status_via_http() throws Exception {
+        var request = """
+                {
+                    "status": "IN_PROGRESS"
+                }
+                """;
+
+        mockMvc.perform(patch("/tickets/{id}/status", ticket.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
 }
