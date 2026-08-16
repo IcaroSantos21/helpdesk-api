@@ -12,13 +12,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedAssignmentException.class)
     public ResponseEntity<Map<String, String>> handleUnauthorizedAssignment(UnauthorizedAssignmentException ex) {
-        var body = Map.of("error", "Forbidden", "message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return errorResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
     }
 
     @ExceptionHandler(TicketAlreadyAssignedException.class)
     public ResponseEntity<Map<String, String>> handleTicketAlreadyAssigned(TicketAlreadyAssignedException ex) {
-        var body = Map.of("error", "Conflict", "message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return errorResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+    }
+
+    private ResponseEntity<Map<String, String>> errorResponse(HttpStatus status, String error, String message) {
+        return ResponseEntity.status(status).body(Map.of("error", error, "message", message));
     }
 }
