@@ -234,7 +234,7 @@ public class TicketControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "client@helpdesk.com", roles = "CLIENT")
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
     void should_return_403_when_client_attempts_unauthorized_status_change() throws Exception {
         var request = """
             {
