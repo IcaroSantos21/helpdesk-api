@@ -20,7 +20,13 @@ public class GlobalExceptionHandler {
         return errorResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
     }
 
+    @ExceptionHandler(TicketNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleTicketNotFound(TicketNotFoundException ex) {
+        return errorResponse(HttpStatus.NOT_FOUND, "Not_found", ex.getMessage());
+    }
+
     private ResponseEntity<Map<String, String>> errorResponse(HttpStatus status, String error, String message) {
         return ResponseEntity.status(status).body(Map.of("error", error, "message", message));
     }
+
 }
