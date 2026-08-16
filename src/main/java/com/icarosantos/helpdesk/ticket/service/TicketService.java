@@ -3,7 +3,7 @@ package com.icarosantos.helpdesk.ticket.service;
 import com.icarosantos.helpdesk.common.exception.InvalidStatusTransitionException;
 import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
 import com.icarosantos.helpdesk.common.exception.TicketNotFoundException;
-import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
+import com.icarosantos.helpdesk.common.exception.UnauthorizedActionException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
 import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
@@ -58,13 +58,8 @@ public class TicketService {
 
     public Ticket changeStatus(UUID ticketId, TicketStatus newStatus, UserRole requesterRole) {
         var ticket = repository.findById(ticketId).get();
-        var currentStatus = ticket.getStatus();
 
-        if (requesterRole == UserRole.CLIENT && (currentStatus != TicketStatus.RESOLVED || newStatus != TicketStatus.CLOSED)) {
-            throw new UnauthorizedAssignmentException("Clients can only confirm resolution by moving a ticket from RESOLVED to CLOSED");
-        }
-
-        validateTransition(ticket.getStatus(), newStatus);
+        validateTransition(ticket.getStatus(), newStatus, requesterRole);
 
         ticket.setStatus(newStatus);
         ticket.setUpdatedAt(LocalDateTime.now());
@@ -93,13 +88,18 @@ public class TicketService {
 
     private void validateAssignment(Ticket ticket, UserRole requesterRole) {
         if (requesterRole == UserRole.CLIENT)
-            throw new UnauthorizedAssignmentException("Clients are not allowed to assign tickets");
+            throw new UnauthorizedActionException("Clients are not allowed to assign tickets");
 
         if (ticket.getAssignedTo() != null)
             throw new TicketAlreadyAssignedException("Ticket is already assigned to an agent");
     }
 
-    private void validateTransition(TicketStatus currentStatus, TicketStatus newStatus) {
+    private void validateTransition(TicketStatus currentStatus, TicketStatus newStatus, UserRole requesterRole) {
+
+        if (requesterRole == UserRole.CLIENT && (currentStatus != TicketStatus.RESOLVED || newStatus != TicketStatus.CLOSED)) {
+            throw new UnauthorizedActionException("Clients can only confirm resolution by moving a ticket from RESOLVED to CLOSED");
+        }
+
         switch (currentStatus) {
 
             case OPEN -> {

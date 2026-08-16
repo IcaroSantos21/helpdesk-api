@@ -2,7 +2,7 @@ package com.icarosantos.helpdesk.ticket.service;
 
 import com.icarosantos.helpdesk.common.exception.InvalidStatusTransitionException;
 import com.icarosantos.helpdesk.common.exception.TicketAlreadyAssignedException;
-import com.icarosantos.helpdesk.common.exception.UnauthorizedAssignmentException;
+import com.icarosantos.helpdesk.common.exception.UnauthorizedActionException;
 import com.icarosantos.helpdesk.ticket.domain.Ticket;
 import com.icarosantos.helpdesk.ticket.domain.TicketPriority;
 import com.icarosantos.helpdesk.ticket.domain.TicketStatus;
@@ -206,7 +206,7 @@ class TicketServiceTest {
         when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
 
         assertThatThrownBy(() -> service.assign(ticketId, agentId, UserRole.CLIENT))
-                .isInstanceOf(UnauthorizedAssignmentException.class);
+                .isInstanceOf(UnauthorizedActionException.class);
     }
 
     @Test
