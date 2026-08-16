@@ -1,6 +1,7 @@
 package com.icarosantos.helpdesk.ticket.controller;
 
 import com.icarosantos.helpdesk.ticket.dto.AssignTicketRequest;
+import com.icarosantos.helpdesk.ticket.dto.ChangeStatusRequest;
 import com.icarosantos.helpdesk.ticket.dto.CreateTicketRequest;
 import com.icarosantos.helpdesk.ticket.dto.TicketResponse;
 import com.icarosantos.helpdesk.ticket.service.TicketService;
@@ -33,6 +34,12 @@ public class TicketController {
     public ResponseEntity<TicketResponse> assignTicket(@PathVariable UUID id, @RequestBody AssignTicketRequest request, Authentication authentication) {
         var userRole = userRepository.findByEmail(authentication.getName()).orElseThrow().getRole();
         var ticket = ticketService.assign(id, request.agentId(), userRole);
+        return ResponseEntity.status(HttpStatus.OK).body(TicketResponse.from(ticket));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TicketResponse> changeStatus(@PathVariable UUID id, @RequestBody ChangeStatusRequest request) {
+        var ticket = ticketService.changeStatus(id, request.status());
         return ResponseEntity.status(HttpStatus.OK).body(TicketResponse.from(ticket));
     }
 }
