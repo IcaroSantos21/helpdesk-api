@@ -252,7 +252,7 @@ class TicketServiceTest {
         when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
         when(repository.save(any(Ticket.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.changeStatus(ticketId, TicketStatus.IN_PROGRESS);
+        var result = service.changeStatus(ticketId, TicketStatus.IN_PROGRESS, UserRole.AGENT);
 
         assertThat(result.getStatus()).isEqualTo(TicketStatus.IN_PROGRESS);
         assertThat(result.getUpdatedAt()).isNotNull();
@@ -278,7 +278,7 @@ class TicketServiceTest {
         when(repository.save(any(Ticket.class))).
                 thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.changeStatus(ticketId, TicketStatus.RESOLVED);
+        var result = service.changeStatus(ticketId, TicketStatus.RESOLVED, UserRole.AGENT);
 
         assertThat(result.getStatus()).isEqualTo(TicketStatus.RESOLVED);
         assertThat(result.getUpdatedAt()).isNotNull();
@@ -303,7 +303,7 @@ class TicketServiceTest {
         when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
         when(repository.save(any(Ticket.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.changeStatus(ticketId, TicketStatus.CLOSED);
+        var result = service.changeStatus(ticketId, TicketStatus.CLOSED, UserRole.AGENT);
 
         assertThat(result.getStatus()).isEqualTo(TicketStatus.CLOSED);
         assertThat(result.getUpdatedAt()).isNotNull();
@@ -327,7 +327,7 @@ class TicketServiceTest {
 
         when(repository.findById(ticketId)).thenReturn(Optional.of(existingTicket));
 
-        assertThatThrownBy(() -> service.changeStatus(ticketId, TicketStatus.CLOSED))
+        assertThatThrownBy(() -> service.changeStatus(ticketId, TicketStatus.CLOSED, UserRole.AGENT))
                 .isInstanceOf(InvalidStatusTransitionException.class);
     }
 }

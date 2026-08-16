@@ -56,8 +56,13 @@ public class TicketService {
         return repository.save(ticket);
     }
 
-    public Ticket changeStatus(UUID ticketId, TicketStatus newStatus) {
+    public Ticket changeStatus(UUID ticketId, TicketStatus newStatus, UserRole requesterRole) {
         var ticket = repository.findById(ticketId).get();
+        var currentStatus = ticket.getStatus();
+
+        if (requesterRole == UserRole.CLIENT && (currentStatus != TicketStatus.RESOLVED || newStatus != TicketStatus.CLOSED)) {
+            throw new UnauthorizedAssignmentException("Clients can only confirm resolution by moving a ticket from RESOLVED to CLOSED");
+        }
 
         validateTransition(ticket.getStatus(), newStatus);
 
