@@ -262,4 +262,21 @@ public class TicketControllerIntegrationTest {
                         .content(request))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_return_404_when_ticket_does_not_exist() throws Exception {
+        var nonExistentTicketId = UUID.randomUUID();
+
+        var request = """
+                    {
+                        "status": "IN_PROGRESS"
+                    }
+                """;
+
+        mockMvc.perform(patch("/tickets/{id}/status", nonExistentTicketId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isNotFound());
+    }
 }
