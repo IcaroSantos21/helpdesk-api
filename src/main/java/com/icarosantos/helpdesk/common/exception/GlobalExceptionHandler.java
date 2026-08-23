@@ -25,6 +25,11 @@ public class GlobalExceptionHandler {
         return errorResponse(HttpStatus.NOT_FOUND, "Not_found", ex.getMessage());
     }
 
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidTransaction(InvalidStatusTransitionException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, "Bad_request", ex.getMessage());
+    }
+
     private ResponseEntity<Map<String, String>> errorResponse(HttpStatus status, String error, String message) {
         return ResponseEntity.status(status).body(Map.of("error", error, "message", message));
     }
