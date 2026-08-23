@@ -269,7 +269,9 @@ public class TicketControllerIntegrationTest {
         var nonExistentTicketId = UUID.randomUUID();
 
         var request = """
-                    "status": "IN_PROGRESS"
+                    {
+                        "status": "IN_PROGRESS"
+                    }
                 """;
 
         mockMvc.perform(patch("/tickets/{id}/status", nonExistentTicketId)

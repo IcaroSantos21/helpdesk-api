@@ -57,7 +57,9 @@ public class TicketService {
     }
 
     public Ticket changeStatus(UUID ticketId, TicketStatus newStatus, UserRole requesterRole) {
-        var ticket = repository.findById(ticketId).get();
+        var ticket = repository.findById(ticketId).orElseThrow(
+                () -> new TicketNotFoundException("Ticket not found: " + ticketId)
+        );
 
         validateTransition(ticket.getStatus(), newStatus, requesterRole);
 
