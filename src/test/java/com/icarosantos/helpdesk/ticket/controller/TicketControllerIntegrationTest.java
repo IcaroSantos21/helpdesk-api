@@ -247,4 +247,19 @@ public class TicketControllerIntegrationTest {
                         .content(request))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @WithMockUser(username = "agent@helpdesk", roles = "AGENT")
+    void should_return_400_for_invalid_status_transition() throws Exception {
+        var request = """
+                {
+                    "status": "RESOLVED"
+                }
+                """;
+
+        mockMvc.perform(patch("/tickets/{id}/status", ticket.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest());
+    }
 }
