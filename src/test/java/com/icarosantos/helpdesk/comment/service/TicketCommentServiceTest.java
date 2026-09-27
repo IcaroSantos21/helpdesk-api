@@ -1,8 +1,8 @@
 package com.icarosantos.helpdesk.comment.service;
 
-import com.icarosantos.helpdesk.comment.domain.TicketComment;
+import com.icarosantos.helpdesk.comment.domain.Comment;
 import com.icarosantos.helpdesk.comment.dto.AddCommentRequest;
-import com.icarosantos.helpdesk.comment.repository.TicketCommentRepository;
+import com.icarosantos.helpdesk.comment.repository.CommentRepository;
 import com.icarosantos.helpdesk.common.exception.InvalidCommentException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,21 +23,21 @@ import static org.mockito.Mockito.when;
 class TicketCommentServiceTest {
 
     @Mock
-    private TicketCommentRepository repository;
+    private CommentRepository repository;
 
     @InjectMocks
-    private TicketCommentService service;
+    private CommentService service;
 
     @Test
     void should_add_comment() {
         var ticketId = UUID.randomUUID();
         var authorId = UUID.randomUUID();
-        var request = new AddCommentRequest("This issue is still happening", authorId);
+        var request = new AddCommentRequest("This issue is still happening");
 
-        when(repository.save(any(TicketComment.class))).thenAnswer(invocation ->
+        when(repository.save(any(Comment.class))).thenAnswer(invocation ->
                 invocation.getArgument(0));
 
-        var result = service.addComment(ticketId, request);
+        var result = service.addComment(ticketId, request, authorId);
 
         assertThat(result.getTicketId()).isEqualTo(ticketId);
         assertThat(result.getMessage()).isEqualTo("This issue is still happening");
@@ -47,9 +47,9 @@ class TicketCommentServiceTest {
     void should_reject_blank_comment() {
         var ticketId = UUID.randomUUID();
         var authorId = UUID.randomUUID();
-        var request = new AddCommentRequest("   ", authorId);
+        var request = new AddCommentRequest("   ");
 
-        assertThatThrownBy(() -> service.addComment(ticketId, request))
+        assertThatThrownBy(() -> service.addComment(ticketId, request, authorId))
                 .isInstanceOf(InvalidCommentException.class);
     }
 
@@ -57,11 +57,11 @@ class TicketCommentServiceTest {
     void should_set_comment_author() {
         var ticketId = UUID.randomUUID();
         var authorId = UUID.randomUUID();
-        var request = new AddCommentRequest("This issue is still happening", authorId);
+        var request = new AddCommentRequest("This issue is still happening");
 
-        when(repository.save(any(TicketComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.addComment(ticketId, request);
+        var result = service.addComment(ticketId, request, authorId);
 
         assertThat(result.getAuthorId()).isEqualTo(authorId);
     }
@@ -70,11 +70,11 @@ class TicketCommentServiceTest {
     void should_set_comment_creation_date() {
         var ticketId = UUID.randomUUID();
         var authorId = UUID.randomUUID();
-        var request = new AddCommentRequest("This issue is still happening", authorId);
+        var request = new AddCommentRequest("This issue is still happening");
 
-        when(repository.save(any(TicketComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = service.addComment(ticketId, request);
+        var result = service.addComment(ticketId, request, authorId);
 
         assertThat(result.getCreatedAt()).isNotNull();
     }

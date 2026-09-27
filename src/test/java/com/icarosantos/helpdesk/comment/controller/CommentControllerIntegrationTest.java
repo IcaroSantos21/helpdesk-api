@@ -63,7 +63,7 @@ public class CommentControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "client@helpdsek", roles = "CLIENT")
+    @WithMockUser(username = "client@helpdesk", roles = "CLIENT")
     void should_add_comment_via_http() throws Exception {
         var request = """
                 {
@@ -76,6 +76,6 @@ public class CommentControllerIntegrationTest {
                 .content(request))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.content").value("Estou com o mesmo problema"))
-                .andExpect(jsonPath("$.authoId").value(client.getId().toString()));
+                .andExpect(jsonPath("$.authorId").value(client.getId().toString()));
     }
 }
