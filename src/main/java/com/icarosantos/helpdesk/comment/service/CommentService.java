@@ -1,8 +1,8 @@
 package com.icarosantos.helpdesk.comment.service;
 
-import com.icarosantos.helpdesk.comment.domain.TicketComment;
+import com.icarosantos.helpdesk.comment.domain.Comment;
 import com.icarosantos.helpdesk.comment.dto.AddCommentRequest;
-import com.icarosantos.helpdesk.comment.repository.TicketCommentRepository;
+import com.icarosantos.helpdesk.comment.repository.CommentRepository;
 import com.icarosantos.helpdesk.common.exception.InvalidCommentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,19 +12,19 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TicketCommentService {
+public class CommentService {
 
-    private final TicketCommentRepository repository;
+    private final CommentRepository repository;
 
 
-    public TicketComment addComment(UUID ticketId, AddCommentRequest request) {
+    public Comment addComment(UUID ticketId, AddCommentRequest request, UUID authorId) {
 
         validateContent(request);
 
-        var ticketComment = TicketComment.builder()
+        var ticketComment = Comment.builder()
                 .id(UUID.randomUUID())
                 .ticketId(ticketId)
-                .authorId(request.authorId())
+                .authorId(authorId)
                 .message(request.content())
                 .createdAt(LocalDateTime.now())
                 .build();

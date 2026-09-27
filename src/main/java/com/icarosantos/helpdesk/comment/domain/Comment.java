@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "ticket_comments")
-public class TicketComment {
+public class Comment {
 
     @Id
     private UUID id;
